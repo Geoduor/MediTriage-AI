@@ -268,7 +268,9 @@ def generate_care_pathway(
     level_labels = swahili.get("triage_levels", {}).get(triage_level, {})
 
     personalised: str | None = None
-    if use_llm is not False:
+    status = llm_status()
+    should_call_llm = status["enabled"] if use_llm is None else (use_llm and status["enabled"])
+    if should_call_llm:
         personalised = _personalise_with_llm(
             triage_level,
             symptom_profile,

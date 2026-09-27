@@ -31,8 +31,10 @@ services:
       - key: LOG_LEVEL
         value: INFO
       # auto = use the LLM when a key exists, otherwise stay deterministic.
+      # Production: off = never call LLM (fast, no rate limits, no cost).
+      # Override per-request with use_llm=true if needed (not recommended for prod).
       - key: LLM_MODE
-        value: auto
+        value: off
       # gemini (recommended) | groq | ollama | anthropic | none
       - key: LLM_PROVIDER
         value: gemini

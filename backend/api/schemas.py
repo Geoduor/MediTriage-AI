@@ -31,6 +31,7 @@ class TriageRequest(BaseModel):
     patient_context: PatientContext = Field(default_factory=PatientContext)
     language: Language = "en"
     sex: str | None = None
+    use_llm: bool = Field(default=False, description="Enable LLM-enhanced phrasing (slower, rate-limited). Default: false for fast deterministic triage.")
 
     @field_validator("symptoms")
     @classmethod
@@ -60,6 +61,7 @@ class CarePathwayRequest(BaseModel):
     symptom_profile: dict[str, Any] = Field(default_factory=dict)
     triage_result: dict[str, Any] | None = None
     language: Language = "en"
+    use_llm: bool = Field(default=False, description="Enable LLM-enhanced phrasing. Default: false.")
 
 
 class HealthResponse(BaseModel):

@@ -86,13 +86,17 @@ def list_test_cases() -> dict[str, Any]:
 
 @router.post("/api/analyze-symptoms", tags=["agents"])
 def analyze(request: AnalyzeSymptomsRequest) -> dict[str, Any]:
-    """Agent 1 - extract a structured symptom profile."""
+    """Agent 1 - extract a structured symptom profile.
+    
+    By default runs deterministic. Set use_llm=true to enable AI extraction.
+    """
     return analyze_symptoms(
         symptom_text=request.symptoms,
         patient_age=request.patient_age,
         patient_context=request.patient_context.model_dump(),
         sex=request.sex,
         language=request.language,
+        use_llm=request.use_llm,
     )
 
 
@@ -108,24 +112,33 @@ def decide(request: TriageDecisionRequest) -> dict[str, Any]:
 
 @router.post("/api/care-pathway", tags=["agents"])
 def pathway(request: CarePathwayRequest) -> dict[str, Any]:
-    """Agent 3 - produce care instructions and SHA cost information."""
+    """Agent 3 - produce care instructions and SHA cost information.
+    
+    By default runs deterministic. Set use_llm=true to enable AI phrasing.
+    """
     return generate_care_pathway(
         triage_level=request.triage_level,
         symptom_profile=request.symptom_profile,
         language=request.language,
         triage_result=request.triage_result,
+        use_llm=request.use_llm,
     )
 
 
 @router.post("/api/full-triage", tags=["agents"])
 def full_triage(request: TriageRequest) -> dict[str, Any]:
-    """The chained pipeline: symptoms -> analysis -> triage -> care pathway."""
+    """The chained pipeline: symptoms -> analysis -> triage -> care pathway.
+    
+    By default runs fully deterministic (no LLM) for speed and reliability.
+    Set use_llm=true to enable AI-enhanced phrasing (slower, rate-limited).
+    """
     outcome = run_full_triage(
         symptoms=request.symptoms,
         patient_age=request.patient_age,
         patient_context=request.patient_context.model_dump(),
         language=request.language,
         sex=request.sex,
+        use_llm=request.use_llm,
     )
     payload = outcome.to_dict()
     if not payload["audit"]["within_sla"]:
