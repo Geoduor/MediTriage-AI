@@ -1,0 +1,37 @@
+/* MediTriage AI — color tokens
+   Base palette: warm "paper triage tag" feel, not generic SaaS-card look.
+   Triage colors (RED/YELLOW/GREEN) are fixed by spec — do not change these three. */
+
+:root {
+  /* Base palette */
+  --color-paper: #f7f5ef;       /* page background — warm off-white, like a clinic card */
+  --color-ink: #1b2b22;         /* primary text — deep forest-ink, not pure black */
+  --color-ink-soft: #4a5b4f;    /* secondary text */
+  --color-clinic: #0b6e4f;      /* brand / primary action — deep medical green */
+  --color-clinic-dark: #08543c; /* hover state for brand actions */
+  --color-line: #d8d3c4;        /* hairline borders, dividers */
+  --color-card: #ffffff;
+
+  /* Fixed triage colors — must match backend contract exactly */
+  --color-red: #ff4444;
+  --color-yellow: #ffbb33;
+  --color-green: #00c851;
+
+  /* Text-on-triage-color (kept dark-on-amber for contrast, white elsewhere) */
+  --color-on-red: #ffffff;
+  --color-on-yellow: #2b2107;
+  --color-on-green: #ffffff;
+}
+
+.triage-red {
+  --triage-color: var(--color-red);
+  --triage-on: var(--color-on-red);
+}
+.triage-yellow {
+  --triage-color: var(--color-yellow);
+  --triage-on: var(--color-on-yellow);
+}
+.triage-green {
+  --triage-color: var(--color-green);
+  --triage-on: var(--color-on-green);
+}
