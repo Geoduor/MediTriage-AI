@@ -15,6 +15,14 @@ const COMMON_SYMPTOMS = [
   "Low mood / anxiety",
 ];
 
+/** Add or remove a chronic condition from the list sent to the backend. */
+function toggleCondition(list, condition, checked) {
+  const current = list || [];
+  return checked
+    ? [...current, condition]
+    : current.filter((item) => item !== condition);
+}
+
 function SymptomChecklist({ selected, onToggle }) {
   return (
     <div className="form-group">
@@ -86,14 +94,57 @@ function PatientContext({ context, onChange }) {
       </div>
       <div className="checkbox-row">
         <input
-          id="ctx-chronic"
+          id="ctx-hypertension"
           type="checkbox"
-          checked={!!context.has_chronic_condition}
+          checked={(context.chronic_conditions || []).includes("hypertension")}
           onChange={(e) =>
-            onChange({ ...context, has_chronic_condition: e.target.checked })
+            onChange({
+              ...context,
+              chronic_conditions: toggleCondition(
+                context.chronic_conditions,
+                "hypertension",
+                e.target.checked
+              ),
+            })
           }
         />
-        <label htmlFor="ctx-chronic">Has a chronic condition (diabetes, hypertension, etc.)</label>
+        <label htmlFor="ctx-hypertension">Hypertension (high blood pressure)</label>
+      </div>
+      <div className="checkbox-row">
+        <input
+          id="ctx-diabetes"
+          type="checkbox"
+          checked={(context.chronic_conditions || []).includes("diabetes")}
+          onChange={(e) =>
+            onChange({
+              ...context,
+              chronic_conditions: toggleCondition(
+                context.chronic_conditions,
+                "diabetes",
+                e.target.checked
+              ),
+            })
+          }
+        />
+        <label htmlFor="ctx-diabetes">Diabetes</label>
+      </div>
+      <div className="checkbox-row">
+        <input
+          id="ctx-asthma"
+          type="checkbox"
+          checked={(context.chronic_conditions || []).includes("asthma")}
+          onChange={(e) =>
+            onChange({
+              ...context,
+              chronic_conditions: toggleCondition(
+                context.chronic_conditions,
+                "asthma",
+                e.target.checked
+              ),
+            })
+          }
+        />
+        <label htmlFor="ctx-asthma">Asthma</label>
       </div>
     </div>
   );
@@ -133,10 +184,18 @@ export default function IntakeForm({ onSubmit, loading }) {
     }
 
     setValidationError("");
+    // Translate the form's UI state into the backend's contract.
+    // The API expects `hiv_status` (string) and `chronic_conditions` (string[]),
+    // not `hiv_positive` / `has_chronic_condition` - sending the wrong keys means
+    // the backend silently ignores the context and triage loses that risk signal.
     onSubmit({
       symptoms: combinedSymptoms,
       patient_age: Number(age),
-      patient_context: context,
+      patient_context: {
+        pregnant: !!context.pregnant,
+        hiv_status: context.hiv_positive ? "positive" : "negative",
+        chronic_conditions: context.chronic_conditions || [],
+      },
     });
   }
 

@@ -40,6 +40,7 @@ data/*.db
 .tmp/
 .npmcache/
 .pytest_cache/
+pytest-cache-files-*/
 
 # ---- Person 1's frontend scaffold, kept until Person 2's UI is verified ----
 # Safe to delete once her frontend builds and passes the 5 demo scenarios.
