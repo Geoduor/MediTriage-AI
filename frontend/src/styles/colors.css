@@ -1,16 +1,19 @@
 /* MediTriage AI — color tokens
-   Base palette: warm "paper triage tag" feel, not generic SaaS-card look.
+   Base palette: soft clinical teal/blue, modeled on health-consultant site
+   conventions (calm, trustworthy, plenty of white space).
    Triage colors (RED/YELLOW/GREEN) are fixed by spec — do not change these three. */
 
 :root {
   /* Base palette */
-  --color-paper: #f7f5ef;       /* page background — warm off-white, like a clinic card */
-  --color-ink: #1b2b22;         /* primary text — deep forest-ink, not pure black */
-  --color-ink-soft: #4a5b4f;    /* secondary text */
-  --color-clinic: #0b6e4f;      /* brand / primary action — deep medical green */
-  --color-clinic-dark: #08543c; /* hover state for brand actions */
-  --color-line: #d8d3c4;        /* hairline borders, dividers */
+  --color-paper: #f4fafa;       /* page background — soft teal-tinted white */
+  --color-ink: #16323a;         /* primary text — deep teal-ink, not pure black */
+  --color-ink-soft: #52717a;    /* secondary text */
+  --color-clinic: #0a7373;      /* brand / primary action — consultant teal */
+  --color-clinic-dark: #075858; /* hover state for brand actions */
+  --color-accent: #2e86ab;      /* secondary accent — soft blue, used sparingly */
+  --color-line: #d9e6e6;        /* hairline borders, dividers */
   --color-card: #ffffff;
+  --shadow-card: 0 4px 18px rgba(10, 115, 115, 0.08);
 
   /* Fixed triage colors — must match backend contract exactly */
   --color-red: #ff4444;
