@@ -22,6 +22,7 @@ from llm.client import (
     parse_gemini_response,
     parse_groq_response,
     parse_ollama_response,
+    probe_llm,
 )
 
 
@@ -141,6 +142,10 @@ class TestDispatch:
         captured = {}
 
         class FakeResponse:
+            status_code = 200
+            url = "https://example.invalid"
+            text = ""
+
             def raise_for_status(self):
                 return None
 
@@ -168,6 +173,10 @@ class TestDispatch:
 
     def test_call_llm_json_extracts_dict(self, monkeypatch):
         class FakeResponse:
+            status_code = 200
+            url = "https://example.invalid"
+            text = ""
+
             def raise_for_status(self):
                 return None
 
@@ -257,3 +266,126 @@ class TestExtractJson:
     def test_garbage_returns_none(self):
         assert extract_json("no json here") is None
         assert extract_json("") is None
+
+
+class TestFailureDiagnostics:
+    """A bad key must be visible.
+
+    `LLM_MODE=auto` degrades to the deterministic engine on any failure, so a
+    broken key still returns correct triage. That is right for safety but it
+    hides the problem: the service reports "LLM enabled" while running no AI.
+    These tests pin the diagnostics that make that visible.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _reset(self, monkeypatch):
+        monkeypatch.setattr(llm_client, "_LAST_ERROR", None)
+        yield
+
+    def _configure(self, monkeypatch):
+        monkeypatch.setenv("LLM_MODE", "auto")
+        monkeypatch.setenv("LLM_PROVIDER", "gemini")
+        monkeypatch.setenv("GEMINI_API_KEY", "not-a-real-key")
+
+    def test_provider_error_body_is_captured(self, monkeypatch):
+        class FakeResponse:
+            status_code = 400
+            url = "https://generativelanguage.googleapis.com/v1beta/models/x:generateContent"
+            text = (
+                '{"error": {"code": 400, "message": "API key not valid. '
+                'Please pass a valid API key.", "status": "INVALID_ARGUMENT"}}'
+            )
+
+            def json(self):
+                return {}
+
+        monkeypatch.setattr(llm_client.httpx, "post", lambda *a, **k: FakeResponse())
+        self._configure(monkeypatch)
+
+        assert call_llm("sys", "user") is None  # still degrades safely
+
+        error = llm_client.last_error()
+        assert error is not None
+        assert "API key not valid" in error["message"], error
+        assert error["provider"] == "gemini"
+
+    def test_status_reports_not_working_after_a_failure(self, monkeypatch):
+        class FakeResponse:
+            status_code = 403
+            url = "https://example.invalid"
+            text = "forbidden"
+
+            def json(self):
+                return {}
+
+        monkeypatch.setattr(llm_client.httpx, "post", lambda *a, **k: FakeResponse())
+        self._configure(monkeypatch)
+
+        call_llm("sys", "user")
+        status = llm_status()
+        assert status["enabled"] is True  # configured...
+        assert status["working"] is False  # ...but not working
+        assert status["last_error"]["message"]
+
+    def test_success_clears_the_previous_error(self, monkeypatch):
+        class BadResponse:
+            status_code = 400
+            url = "https://example.invalid"
+            text = "bad key"
+
+            def json(self):
+                return {}
+
+        class GoodResponse:
+            status_code = 200
+            url = "https://example.invalid"
+            text = ""
+
+            def json(self):
+                return {"candidates": [{"content": {"parts": [{"text": "OK"}]}}]}
+
+        self._configure(monkeypatch)
+
+        monkeypatch.setattr(llm_client.httpx, "post", lambda *a, **k: BadResponse())
+        call_llm("sys", "user")
+        assert llm_client.last_error() is not None
+
+        monkeypatch.setattr(llm_client.httpx, "post", lambda *a, **k: GoodResponse())
+        assert call_llm("sys", "user") == "OK"
+        assert llm_client.last_error() is None
+        assert llm_status()["working"] is True
+
+    def test_probe_reports_no_llm_when_unconfigured(self):
+        # conftest forces LLM_MODE=off for the suite.
+        result = probe_llm()
+        assert result["ok"] is False
+        assert result["error"]
+        assert result["configured"] is False
+
+    def test_probe_reports_success(self, monkeypatch):
+        class GoodResponse:
+            status_code = 200
+            url = "https://example.invalid"
+            text = ""
+
+            def json(self):
+                return {"candidates": [{"content": {"parts": [{"text": "OK"}]}}]}
+
+        monkeypatch.setattr(llm_client.httpx, "post", lambda *a, **k: GoodResponse())
+        self._configure(monkeypatch)
+
+        result = probe_llm()
+        assert result["ok"] is True
+        assert result["sample"] == "OK"
+        assert result["error"] is None
+
+    def test_probe_never_raises_on_failure(self, monkeypatch):
+        def exploding_post(*args, **kwargs):
+            raise ConnectionError("network down")
+
+        monkeypatch.setattr(llm_client.httpx, "post", exploding_post)
+        self._configure(monkeypatch)
+
+        result = probe_llm()
+        assert result["ok"] is False
+        assert "network down" in result["error"]

@@ -29,7 +29,7 @@ from api.schemas import (
 )
 from config import get_settings
 from knowledge.loader import get_knowledge_base, reset_knowledge_base_cache
-from llm.client import llm_status
+from llm.client import llm_status, probe_llm
 from orchestrator import SLA_SECONDS, run_full_triage
 
 logger = logging.getLogger(__name__)
@@ -168,3 +168,21 @@ def reload_knowledge_base() -> dict[str, Any]:
     reset_knowledge_base_cache()
     kb = get_knowledge_base()
     return {"status": "reloaded", "knowledge_base": kb.summary()}
+
+
+@router.get("/api/admin/llm-check", tags=["ops"])
+def llm_check() -> dict[str, Any]:
+    """Live probe of the configured LLM provider.
+
+    Why this exists: `llm.enabled` in /health only means "configured". A wrong or
+    expired key still reports enabled=true while every request silently falls
+    back to the deterministic engine - and on a deployed service the real reason
+    is only in the provider's response, which the server log holds. This endpoint
+    returns that reason directly, so a misconfigured key is diagnosable from a
+    browser.
+
+    Makes one small live call. Never raises.
+    """
+    result = probe_llm()
+    logger.info("LLM probe: ok=%s provider=%s", result["ok"], result["provider"])
+    return result

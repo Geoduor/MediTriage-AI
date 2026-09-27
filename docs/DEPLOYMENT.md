@@ -146,6 +146,26 @@ curl https://YOUR-SERVICE.onrender.com/health
 cd backend && python verify.py --url https://YOUR-SERVICE.onrender.com
 ```
 
+### Verify the AI layer is actually running (do not skip this)
+
+`llm.enabled` in `/health` only means the key is *configured*. A wrong key still reports
+`enabled: true` while every request silently falls back to the deterministic engine — so the
+service looks healthy while running no AI at all. Check it explicitly:
+
+```bash
+curl https://YOUR-SERVICE.onrender.com/api/admin/llm-check
+```
+
+- `"ok": true` → the AI layer is live; you can claim it in your submission.
+- `"ok": false` → read `error`. `API key not valid` means the key is wrong; `429` means the
+  free-tier limit; a connection error means the provider is unreachable.
+
+Locally the same check is `cd backend && python check_llm.py`.
+
+**This never breaks the demo** — triage is decided by the rule engine either way. But if the
+provider is failing, either fix the key or disclose that the deployment is running
+deterministically, because the submission requires the *actual* AI contribution.
+
 ---
 
 ## Step 3 - Deploy the frontend to Vercel
@@ -229,6 +249,8 @@ Run through this an hour before presenting.
 - [ ] `cd backend && python -m pytest tests/ -q` -> all pass
 - [ ] `python verify.py` -> ALL CHECKS PASSED
 - [ ] `python verify.py --url <render-url>` -> ALL CHECKS PASSED
+- [ ] `python data/validate_data.py` -> data files valid (Person 3's QA)
+- [ ] `curl <render-url>/api/admin/llm-check` -> decide AI claim: `ok: true` or disclose it is off
 - [ ] Backend `/health` returns `"status": "ok"`
 - [ ] Backend warmed up (hit `/health` once to defeat the cold start)
 - [ ] `CORS_ORIGINS` contains the exact Vercel URL
@@ -246,7 +268,8 @@ Run through this an hour before presenting.
 |---|---|---|
 | Frontend: cannot reach service | CORS or wrong API URL | Check `CORS_ORIGINS`; set `LLM_MODE=off` and redeploy |
 | First request takes ~50s | Render free tier cold start | Wait; it is a one-time cost |
-| LLM errors in logs | Bad key or quota | Harmless: the engine still triages. `LLM_MODE=off` silences it |
+| LLM errors in logs | Bad key or quota | Harmless for triage: the engine still works. Diagnose with `/api/admin/llm-check`, or set `LLM_MODE=off` to silence it |
+| App works but no AI is running | Invalid `GEMINI_API_KEY` (looks healthy in `/health`) | `curl .../api/admin/llm-check` — check `llm.working` and `last_error` |
 | Wrong triage level | Rule or keyword issue | `python debug_case.py "<the symptoms>"` to see the exact rule |
 | Backend 500 | Knowledge base file malformed | `python -c "import json;json.load(open('data/triage_rules.json'))"` |
 

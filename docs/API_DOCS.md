@@ -31,7 +31,9 @@ Liveness and configuration. Render polls this to decide whether the service is u
     "mode": "auto",
     "provider": "gemini",
     "model": null,
-    "reason": "GEMINI_API_KEY not set - running in deterministic offline mode"
+    "reason": "GEMINI_API_KEY not set - running in deterministic offline mode",
+    "last_error": null,
+    "working": false
   },
   "knowledge_base": {
     "conditions": 10,
@@ -53,6 +55,10 @@ Liveness and configuration. Render polls this to decide whether the service is u
 
 `status` is `"ok"` when the knowledge base loaded, `"degraded"` otherwise.
 Use `checks` to decide whether the demo is safe to run.
+
+> **`llm.enabled` means "configured", not "working".** A wrong or expired key still reports
+> `enabled: true` while every request quietly falls back to the deterministic engine. Check
+> `llm.working` / `llm.last_error`, or call `/api/admin/llm-check` below.
 
 ---
 
@@ -255,6 +261,43 @@ The full rule set with predicates and rationales, for clinician review.
 Re-reads `backend/data/*.json` without a redeploy. Person 3 can iterate on content
 and reload. **There is no authentication on this endpoint** - do not expose it to
 patients in a real deployment.
+
+## `GET /api/admin/llm-check`
+
+Makes one small live call to the configured LLM provider and reports exactly what happened,
+including the provider's own error text.
+
+```json
+{
+  "provider": "gemini",
+  "model": "gemini-2.5-flash-preview",
+  "mode": "auto",
+  "configured": true,
+  "reason": "gemini enabled (gemini-2.5-flash-preview)",
+  "ok": false,
+  "sample": null,
+  "error": "gemini call failed (RuntimeError): HTTP 400 from https://generativelanguage.googleapis.com/...: {\"error\": {\"code\": 400, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"INVALID_ARGUMENT\", ...}}",
+  "last_error": {
+    "provider": "gemini",
+    "at": "2026-09-27T15:04:11+00:00",
+    "message": "gemini call failed (RuntimeError): HTTP 400 ..."
+  }
+}
+```
+
+**Why this exists.** Because a broken key is invisible at the product level: triage still returns
+the correct RED/YELLOW/GREEN from the rule engine. On a deployed service the real reason only
+appears in the server log, so this endpoint brings it into the open. Common readings:
+
+| `error` contains | Meaning | Fix |
+|---|---|---|
+| `API key not valid` (400) | Key wrong, revoked, or from another project | Regenerate at the provider console |
+| `model not found` / 404 | `LLM_MODEL` is wrong for this provider | Try an alternative model ID |
+| `429` / `quota` | Free-tier rate limit or daily cap | Wait, or switch `LLM_PROVIDER` |
+| connection/timeout | Network, or Ollama not running | Check the host; `ollama serve` locally |
+
+Equivalent locally: `cd backend && python check_llm.py`. **Unauthenticated** - as with the
+reload endpoint, do not expose these admin routes in a real deployment.
 
 ---
 

@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
@@ -38,6 +39,68 @@ _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL | re.IGNORECAS
 
 class LLMUnavailable(RuntimeError):
     """Raised only when LLM_MODE=on demands a model and none can be reached."""
+
+
+# Last provider failure, kept so a deployed service can be diagnosed from its own
+# API instead of from server logs. A misconfigured key otherwise looks like
+# success: the provider is reported as "enabled" while every call falls back to
+# the deterministic engine.
+_LAST_ERROR: dict[str, Any] | None = None
+
+
+def _record_error(provider: str, message: str) -> None:
+    global _LAST_ERROR
+    _LAST_ERROR = {
+        "provider": provider,
+        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "message": message,
+    }
+
+
+def _record_success(provider: str) -> None:
+    global _LAST_ERROR
+    _LAST_ERROR = None
+
+
+def last_error() -> dict[str, Any] | None:
+    """The most recent provider failure, or None after a successful call."""
+    return _LAST_ERROR
+
+
+def probe_llm() -> dict[str, Any]:
+    """Perform one small live call and report exactly what happened.
+
+    Used by `GET /api/admin/llm-check` and `python check_llm.py` so a bad key or
+    an unavailable model can be diagnosed from the deployed service itself.
+    Never raises.
+    """
+    settings = get_settings()
+    result: dict[str, Any] = {
+        "provider": settings.provider,
+        "model": settings.effective_model,
+        "mode": settings.llm_mode,
+        "configured": settings.llm_available,
+        "reason": settings._llm_reason(),
+        "ok": False,
+        "error": None,
+        "sample": None,
+    }
+    if not settings.llm_available:
+        result["error"] = "No LLM is configured for this deployment (see 'reason')."
+        return result
+
+    before = _LAST_ERROR
+    raw = call_llm(
+        "You are a test probe. Reply with exactly the word OK.",
+        "Reply with exactly the word OK.",
+        max_tokens=16,
+        temperature=0.0,
+    )
+    result["ok"] = raw is not None
+    result["sample"] = (raw or "")[:200]
+    result["error"] = None if raw is not None else (_LAST_ERROR or before or {}).get("message")
+    result["last_error"] = _LAST_ERROR
+    return result
 
 
 def extract_json(text: str) -> dict[str, Any] | None:
@@ -259,8 +322,8 @@ def call_llm(
     provider = settings.provider
     try:
         if provider == "anthropic":
-            return _call_anthropic(settings, system_prompt, user_prompt, max_tokens, temperature)
-        if provider in _REST_PROVIDERS:
+            text = _call_anthropic(settings, system_prompt, user_prompt, max_tokens, temperature)
+        elif provider in _REST_PROVIDERS:
             build, parse = _REST_PROVIDERS[provider]
             spec = build(settings, system_prompt, user_prompt, max_tokens, temperature)
             response = httpx.post(
@@ -269,15 +332,36 @@ def call_llm(
                 json=spec["body"],
                 timeout=float(settings.llm_timeout_seconds),
             )
-            response.raise_for_status()
-            return parse(response.json())
-        raise RuntimeError(f"unsupported provider {provider!r}")
+            if response.status_code >= 400:
+                # The provider's own body is the useful part: it says things like
+                # "API key not valid" or "model not found", which is exactly what
+                # you need to fix a bad key on a deployed service.
+                raise RuntimeError(_describe_http_error(response))
+            text = parse(response.json())
+            if text is None:
+                raise RuntimeError(f"provider returned no text (HTTP {response.status_code})")
+        else:
+            raise RuntimeError(f"unsupported provider {provider!r}")
+
+        _record_success(provider)
+        return text
     except Exception as exc:
         message = f"{provider} call failed ({type(exc).__name__}): {exc}"
+        _record_error(provider, message)
         if settings.llm_mode == "on":
             raise LLMUnavailable(message) from exc
         logger.warning("LLM call failed, using deterministic fallback. %s", message)
         return None
+
+
+def _describe_http_error(response: Any) -> str:
+    """Readable one-line reason from a failed provider response."""
+    detail = ""
+    try:
+        detail = response.text[:400]
+    except Exception:  # pragma: no cover - defensive
+        detail = ""
+    return f"HTTP {response.status_code} from {response.url}: {detail}".strip()
 
 
 def call_llm_json(
@@ -296,7 +380,12 @@ def call_llm_json(
 
 
 def llm_status() -> dict[str, Any]:
-    """Report LLM configuration for /health without leaking secrets."""
+    """Report LLM configuration for /health without leaking secrets.
+
+    `enabled` means "configured and will be attempted" - not "working". Check
+    `last_error` (or call the probe) to see whether calls are actually
+    succeeding, because a bad key still reports enabled=true.
+    """
     settings = get_settings()
     return {
         "enabled": settings.llm_available,
@@ -304,4 +393,6 @@ def llm_status() -> dict[str, Any]:
         "provider": settings.provider,
         "model": settings.effective_model if settings.llm_available else None,
         "reason": settings._llm_reason(),
+        "last_error": _LAST_ERROR,
+        "working": settings.llm_available and _LAST_ERROR is None,
     }

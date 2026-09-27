@@ -182,6 +182,12 @@ cd backend && python -m pytest tests/ -q
 python verify.py
 python verify.py --url https://YOUR-SERVICE.onrender.com
 
+# backend: knowledge base QA (Person 3's data validator)
+python data/validate_data.py
+
+# backend: is the configured LLM actually working? (a bad key is otherwise invisible)
+python check_llm.py
+
 # frontend ↔ backend contract (backend must be running)
 cd frontend && node scripts/verify-api-contract.mjs
 ```

@@ -27,7 +27,12 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-BACKEND_ROOT = Path(__file__).resolve().parents[1]
+# This file lives at backend/config.py, so `.parent` is the backend directory
+# (which holds data/). Using parents[1] here pointed one level too high - at the
+# repository root - which made /api/status report `data_dir_exists: false` and
+# left the loader's fallback path doing the real work. Found by inspecting the
+# live Render deployment.
+BACKEND_ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_DIR = BACKEND_ROOT / "data"
 
 VALID_PROVIDERS = ("gemini", "groq", "ollama", "anthropic", "none")
