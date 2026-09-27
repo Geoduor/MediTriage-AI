@@ -1,0 +1,438 @@
+{
+  "schema_version": "1.0.0",
+  "content_owner": "Person 3 (Data & Content Specialist)",
+  "status": "SEED - clinically reviewed for hackathon accuracy, pending pilot validation",
+  "notes": [
+    "clinical_reviewed=false means a licensed Kenyan clinician has NOT yet signed off.",
+    "Every item is traceable to the sources listed in _meta.sources.",
+    "Person 3 owns curation; Person 1 (backend) owns the schema and loader.",
+    "SHA (Social Health Authority) replaced NHIF in October 2024 - do not reintroduce NHIF fields."
+  ],
+  "_meta": {
+    "sources": [
+      "Kenya Ministry of Health - Kenya Health Information System (KHIS) outpatient morbidity summaries",
+      "WHO Kenya Country Health Profile",
+      "Kenya National Clinical Guidelines for Primary Care",
+      "Social Health Authority (SHA) - benefit package documentation, sha.go.ke",
+      "Kenya Master Health Facility List"
+    ],
+    "caveat": "Prevalence ranks are indicative outpatient-morbidity ordering for primary care, not a statistical estimate."
+  },
+  "conditions": [
+    {
+      "id": 1,
+      "slug": "malaria",
+      "name": "Malaria",
+      "swahili_name": "Malaria",
+      "prevalence_rank": 1,
+      "clinical_reviewed": false,
+      "description": "Plasmodium infection transmitted by Anopheles mosquitoes. Endemic in western Kenya and the coast; a febrile illness in Kenya is treated as suspected malaria until a test says otherwise.",
+      "typical_age_group": "All ages; children under 5 and pregnant women at highest risk",
+      "symptoms": [
+        "Fever 38-40C",
+        "Chills and rigors",
+        "Headache",
+        "Body aches",
+        "Nausea or vomiting",
+        "Fatigue"
+      ],
+      "red_flag_indicators": [
+        "Fever 40C or above",
+        "Confusion or altered mental state",
+        "Convulsions",
+        "Inability to drink or breastfeed",
+        "Rapid or laboured breathing",
+        "Black or very dark urine",
+        "Severe pallor"
+      ],
+      "treatment_location": "clinic; hospital if any red flag is present",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for routine diagnosis and treatment; SHIF if admitted; ECCIF if critical care needed",
+      "self_care": [
+        "Rest",
+        "Drink plenty of fluids",
+        "Take paracetamol for fever and pain"
+      ],
+      "danger_signs_watch": [
+        "Confusion or drowsiness",
+        "Difficulty breathing",
+        "Convulsions",
+        "Unable to keep fluids down"
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "respiratory_infection",
+      "name": "Respiratory Infection",
+      "swahili_name": "Ugonjwa wa njia ya kupumua",
+      "prevalence_rank": 2,
+      "clinical_reviewed": false,
+      "description": "Upper and lower respiratory tract infection ranging from the common cold to pneumonia; a cough lasting more than two weeks must be screened for tuberculosis.",
+      "typical_age_group": "All ages; children and the elderly more severe",
+      "symptoms": [
+        "Cough",
+        "Sore throat",
+        "Runny or blocked nose",
+        "Low-grade fever",
+        "Fatigue",
+        "Mild headache"
+      ],
+      "red_flag_indicators": [
+        "Severe difficulty breathing",
+        "Chest pain on breathing",
+        "Fever above 39C",
+        "Coughing up blood",
+        "Cough lasting more than 14 days (tuberculosis screening)",
+        "Unable to speak in full sentences"
+      ],
+      "treatment_location": "home if mild; clinic if fever or breathlessness; hospital if severe",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for consultation, tests and antibiotics; SHIF if admitted with pneumonia",
+      "self_care": [
+        "Rest",
+        "Drink warm fluids",
+        "Steam inhalation",
+        "Honey and ginger for the cough",
+        "Avoid smoke and dust"
+      ],
+      "danger_signs_watch": [
+        "Breathing faster than normal",
+        "Chest indrawing",
+        "Unable to drink",
+        "Cough lasting more than two weeks"
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "hypertension",
+      "name": "Hypertension",
+      "swahili_name": "Shinikizo la damu",
+      "prevalence_rank": 3,
+      "clinical_reviewed": false,
+      "description": "Chronically elevated blood pressure. Usually asymptomatic, which is why routine monitoring is the mainstay of control.",
+      "typical_age_group": "Adults 30 and above",
+      "symptoms": [
+        "Often no symptoms",
+        "Headache",
+        "Dizziness",
+        "Chest discomfort",
+        "Shortness of breath on exertion"
+      ],
+      "red_flag_indicators": [
+        "Systolic 180 mmHg or above",
+        "Diastolic 110 mmHg or above",
+        "Chest pain",
+        "Confusion or blurred vision",
+        "Difficulty breathing at rest",
+        "Sudden weakness on one side of the body"
+      ],
+      "treatment_location": "clinic for routine monitoring; hospital if a red flag is present",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for routine monitoring and medicines; ECCIF for hypertensive emergency with organ damage",
+      "self_care": [
+        "Reduce salt intake",
+        "Take medicines every day as prescribed",
+        "Regular physical activity",
+        "Reduce alcohol and stop smoking"
+      ],
+      "danger_signs_watch": [
+        "Severe headache with blurred vision",
+        "Chest pain",
+        "Weakness on one side of the body",
+        "Slurred speech"
+      ]
+    },
+    {
+      "id": 4,
+      "slug": "diarrhoea",
+      "name": "Diarrhoea and Gastroenteritis",
+      "swahili_name": "Kuhara",
+      "prevalence_rank": 4,
+      "clinical_reviewed": false,
+      "description": "Intestinal infection causing loose stools. Deaths are caused by dehydration, not by the infection itself, so rehydration is the priority.",
+      "typical_age_group": "All ages; children under 5 at highest risk",
+      "symptoms": [
+        "Loose or watery stools",
+        "Abdominal cramps",
+        "Nausea",
+        "Vomiting",
+        "Mild fever"
+      ],
+      "red_flag_indicators": [
+        "Sunken eyes or dry mouth (severe dehydration)",
+        "No urine passed for many hours",
+        "Blood in the stool",
+        "Severe abdominal pain",
+        "Persistent vomiting - cannot keep fluids down",
+        "High fever",
+        "Blood in the stool"
+      ],
+      "treatment_location": "home with oral rehydration; clinic if dehydrated; hospital if severe",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for oral rehydration salts and consultation; SHIF if admitted for intravenous fluids",
+      "self_care": [
+        "Oral rehydration solution after every loose stool",
+        "Small frequent meals",
+        "Continue breastfeeding a sick child",
+        "Wash hands with soap",
+        "Drink boiled or treated water"
+      ],
+      "danger_signs_watch": [
+        "Sunken eyes",
+        "Not passing urine",
+        "Blood in the stool",
+        "Child becomes floppy or difficult to wake"
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "chest_pain",
+      "name": "Chest Pain",
+      "swahili_name": "Maumivu ya kifua",
+      "prevalence_rank": 5,
+      "clinical_reviewed": false,
+      "description": "Chest pain or pressure that may be cardiac. In a primary care setting this cannot be excluded without an ECG, so cardiac-sounding chest pain is always an emergency.",
+      "typical_age_group": "Adults; risk rises with age, diabetes, hypertension and smoking",
+      "symptoms": [
+        "Chest pain or pressure",
+        "Pain spreading to arm, neck or jaw",
+        "Shortness of breath",
+        "Sweating",
+        "Palpitations"
+      ],
+      "red_flag_indicators": [
+        "Chest pain with shortness of breath",
+        "Chest pain with sweating",
+        "Chest pain spreading to arm, neck or jaw",
+        "Chest pain at rest or lasting more than 15 minutes",
+        "Fainting",
+        "Very fast or irregular heartbeat"
+      ],
+      "treatment_location": "HOSPITAL IMMEDIATELY - do not treat at primary level",
+      "estimated_cost_kes": "0 to patient under SHA; ECCIF covers emergency and critical care",
+      "sha_covered": true,
+      "sha_fund": "ECCIF (Emergency, Chronic and Critical Illness Fund)",
+      "self_care": [
+        "Stop all activity and sit down",
+        "Chew 325 mg aspirin if available and not allergic",
+        "Do not drive yourself",
+        "Call for emergency transport"
+      ],
+      "danger_signs_watch": [
+        "Pain getting worse",
+        "Cold sweat",
+        "Difficulty breathing",
+        "Becoming unconscious"
+      ]
+    },
+    {
+      "id": 6,
+      "slug": "depression_anxiety",
+      "name": "Depression and Anxiety",
+      "swahili_name": "Huzuni na wasiwasi",
+      "prevalence_rank": 6,
+      "clinical_reviewed": false,
+      "description": "Common mental disorders affecting mood, sleep and function. Under SHA, mental health services are covered without needing a referral, so patients can be directed to care directly.",
+      "typical_age_group": "Adolescents and adults",
+      "symptoms": [
+        "Persistent sadness",
+        "Loss of interest or pleasure",
+        "Sleep disturbance",
+        "Fatigue and low energy",
+        "Anxiety or panic",
+        "Poor concentration"
+      ],
+      "red_flag_indicators": [
+        "Thoughts of self-harm or suicide",
+        "A plan or means to harm self",
+        "Psychosis - hearing voices or fixed false beliefs",
+        "Unable to care for self or dependants",
+        "Severe agitation"
+      ],
+      "treatment_location": "clinic or mental health service; emergency care if suicidal",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund); no referral needed for mental health under SHA",
+      "sha_covered": true,
+      "sha_fund": "PHF for primary mental health care and counselling; SHIF for specialist psychiatric care",
+      "self_care": [
+        "Talk to someone you trust",
+        "Keep a regular sleep routine",
+        "Gentle daily exercise",
+        "Avoid alcohol and drugs"
+      ],
+      "danger_signs_watch": [
+        "Thoughts of harming yourself",
+        "Giving away possessions",
+        "Withdrawing from everyone",
+        "Not eating or sleeping at all"
+      ]
+    },
+    {
+      "id": 7,
+      "slug": "uti",
+      "name": "Urinary Tract Infection",
+      "swahili_name": "Maambukizi ya njia ya mkojo",
+      "prevalence_rank": 7,
+      "clinical_reviewed": false,
+      "description": "Infection of the bladder or urethra, common in women. Fever with back pain suggests kidney involvement and needs same-day care.",
+      "typical_age_group": "More common in adult women; also children and men",
+      "symptoms": [
+        "Burning or pain when passing urine",
+        "Passing urine frequently",
+        "Cloudy or strong-smelling urine",
+        "Lower abdominal pain",
+        "Low-grade fever"
+      ],
+      "red_flag_indicators": [
+        "Fever with back or flank pain (kidney involvement)",
+        "Blood in the urine",
+        "Vomiting",
+        "Severe abdominal pain",
+        "Pregnancy with any urinary symptoms",
+        "Confusion in an older adult"
+      ],
+      "treatment_location": "clinic - usually needs antibiotics; hospital if kidney involvement",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for urine test, consultation and antibiotics; SHIF if admitted with pyelonephritis",
+      "self_care": [
+        "Drink plenty of water",
+        "Do not hold urine",
+        "Complete the full course of antibiotics"
+      ],
+      "danger_signs_watch": [
+        "Fever with back pain",
+        "Blood in urine",
+        "Vomiting",
+        "Pain getting worse"
+      ]
+    },
+    {
+      "id": 8,
+      "slug": "skin_infection",
+      "name": "Skin Infection",
+      "swahili_name": "Maambukizi ya ngozi",
+      "prevalence_rank": 8,
+      "clinical_reviewed": false,
+      "description": "Bacterial or fungal skin infection. The key question is whether it is localised or spreading, because spreading infection needs systemic antibiotics.",
+      "typical_age_group": "All ages; children frequently affected",
+      "symptoms": [
+        "Red or inflamed skin",
+        "Itching",
+        "Pus or oozing",
+        "Swelling",
+        "Localised pain"
+      ],
+      "red_flag_indicators": [
+        "Red streaks spreading up the limb",
+        "Fever with a skin infection",
+        "Rapidly spreading redness",
+        "Severe pain out of proportion to the wound",
+        "Skin turning black or blistering",
+        "Infection on the face or around the eye"
+      ],
+      "treatment_location": "home for small localised infection; clinic if it needs antibiotics",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for consultation, wound care and antibiotics",
+      "self_care": [
+        "Keep the area clean and dry",
+        "Do not scratch or squeeze",
+        "Cover with a clean dressing",
+        "Wash hands after touching the area"
+      ],
+      "danger_signs_watch": [
+        "Red streaks going up the limb",
+        "Fever",
+        "Redness spreading quickly",
+        "Increasing pain"
+      ]
+    },
+    {
+      "id": 9,
+      "slug": "diabetes",
+      "name": "Diabetes Mellitus",
+      "swahili_name": "Kisukari",
+      "prevalence_rank": 9,
+      "clinical_reviewed": false,
+      "description": "Chronic disorder of blood glucose control. Routine monitoring prevents complications; very high or very low glucose is an emergency.",
+      "typical_age_group": "Adults; increasingly diagnosed in younger adults",
+      "symptoms": [
+        "Excessive thirst",
+        "Passing urine frequently",
+        "Fatigue",
+        "Blurred vision",
+        "Slow-healing wounds",
+        "Often no symptoms"
+      ],
+      "red_flag_indicators": [
+        "Fruity-smelling breath with nausea (ketoacidosis)",
+        "Deep rapid breathing",
+        "Drowsiness or confusion",
+        "Blood glucose above 20 mmol/L",
+        "Hypoglycaemia - sweating, shaking, confusion",
+        "Foot ulcer or blackened toe"
+      ],
+      "treatment_location": "clinic for routine monitoring; hospital if any red flag is present",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for routine monitoring and medicines; ECCIF for diabetic emergencies and advanced complications",
+      "self_care": [
+        "Take medicines or insulin as prescribed",
+        "Eat regular meals, low in sugar",
+        "Check feet daily",
+        "Keep clinic appointments"
+      ],
+      "danger_signs_watch": [
+        "Fruity-smelling breath",
+        "Vomiting with high sugar",
+        "Confusion or drowsiness",
+        "A foot wound that will not heal"
+      ]
+    },
+    {
+      "id": 10,
+      "slug": "minor_injury",
+      "name": "Minor Injury and Trauma",
+      "swahili_name": "Jeraha dogo",
+      "prevalence_rank": 10,
+      "clinical_reviewed": false,
+      "description": "Cuts, bruises and minor wounds. Most are managed locally; the priorities are stopping bleeding, cleaning the wound and tetanus prevention.",
+      "typical_age_group": "All ages; young adults most often",
+      "symptoms": [
+        "Bleeding",
+        "Bruising",
+        "Swelling",
+        "Pain",
+        "A wound that may contain a foreign object"
+      ],
+      "red_flag_indicators": [
+        "Bleeding that will not stop with pressure",
+        "A deep wound needing stitches",
+        "A wound from a dirty or rusty object (tetanus risk)",
+        "Signs of a broken bone - deformity, inability to move the limb",
+        "Numbness or weakness below the injury",
+        "Wound to the head, chest, abdomen or eye"
+      ],
+      "treatment_location": "home for minor wounds; clinic for cleaning, stitches or tetanus vaccine; hospital if severe",
+      "estimated_cost_kes": "0 at dispensary or health centre (SHA Primary Healthcare Fund)",
+      "sha_covered": true,
+      "sha_fund": "PHF for wound care, suturing and tetanus vaccine; ECCIF for major trauma",
+      "self_care": [
+        "Apply firm pressure to stop bleeding",
+        "Clean with clean running water and soap",
+        "Cover with a clean dressing",
+        "Elevate the injured part if swollen"
+      ],
+      "danger_signs_watch": [
+        "Bleeding that will not stop",
+        "Numbness or weakness below the injury",
+        "Increasing pain, redness or pus",
+        "Fever"
+      ]
+    }
+  ]
+}

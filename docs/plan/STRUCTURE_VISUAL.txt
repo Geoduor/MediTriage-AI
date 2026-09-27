@@ -1,0 +1,361 @@
+================================================================================
+                         MEDI TRIAGE AI - PROJECT STRUCTURE
+================================================================================
+
+PROJECT TITLE
+=============
+MediTriage AI: Smart Healthcare Triage for Kenya's Primary Care Network
+
+ONE-LINE SUMMARY
+================
+AI reads patient symptoms → instantly tells health workers if it's RED/YELLOW/GREEN
+
+PROBLEM → SOLUTION
+==================
+❌ Clinics overwhelmed, triage by gut feel, urgent cases missed
+✅ AI triages in 30 seconds, color-coded urgency, tells where to go + cost
+
+================================================================================
+                              SYSTEM ARCHITECTURE
+================================================================================
+
+                           USER INTERFACE (FRONTEND)
+                          ┌─────────────────────────┐
+                          │   React/Next.js App     │
+                          │  (Mobile-First Design)  │
+                          │                         │
+                          │  1. Intake Form         │
+                          │  2. Triage Results      │
+                          │  3. Referral Slip       │
+                          │                         │
+                          │  Live: vercel.app       │
+                          └────────────┬────────────┘
+                                       │
+                                       │ HTTPS REST API
+                                       │
+                          ┌────────────▼────────────┐
+                          │   BACKEND (FastAPI)     │
+                          │   Python Server         │
+                          │                         │
+                          │  ┌──────────────────┐   │
+                          │  │  ORCHESTRATOR    │   │
+                          │  │  (Coordinates)   │   │
+                          │  └────────┬─────────┘   │
+                          │           │             │
+                          │    ┌──────┴───────┐     │
+                          │    ▼              ▼     │
+                          │  ┌────────┐   ┌────────┐│
+                          │  │ Agent1 │   │ Agent2 ││
+                          │  │Symptom │   │Triage  ││
+                          │  │Analyzer│   │Router  ││
+                          │  └────────┘   └────────┘│
+                          │    ▼              ▼     │
+                          │  ┌────────┐   ┌────────┐│
+                          │  │ Agent3 │   │Agent4  ││
+                          │  │Pathway │   │Tracker ││
+                          │  │Rec.    │   │(Future)││
+                          │  └────────┘   └────────┘│
+                          │           │             │
+                          │  ┌────────▼──────────┐  │
+                          │  │ KNOWLEDGE BASE    │  │
+                          │  │ - 10 Conditions   │  │
+                          │  │ - Triage Rules    │  │
+                          │  │ - SHA (Social Health Authority) Benefits   │  │
+                          │  │ - Test Cases      │  │
+                          │  └───────────────────┘  │
+                          │                         │
+                          │  Live: onrender.com     │
+                          └────────────┬────────────┘
+                                       │
+                        ┌──────────────┴──────────────┐
+                        │                             │
+                        ▼                             ▼
+                   ┌─────────────┐         ┌──────────────────┐
+                   │ Claude API  │         │  NVIDIA Brev     │
+                   │ (LLM)       │         │  (Embeddings +   │
+                   │ Reasoning   │         │   Speed)         │
+                   └─────────────┘         └──────────────────┘
+
+================================================================================
+                            TEAM STRUCTURE & ROLES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 PERSON 1: GEOFRY (YOU - LEAD + DEVOPS)                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Role: Backend Architect + DevOps Engineer                                   │
+│       (You handle ALL technical stack deployment)                           │
+│                                                                             │
+│ Backend:                                                                    │
+│  ✓ FastAPI server (Python)                                                 │
+│  ✓ 4 AI Agents (Claude API integration)                                    │
+│  ✓ Orchestrator (coordinates all agents)                                   │
+│  ✓ API endpoints (/analyze, /triage, /pathway, /full-triage)              │
+│                                                                             │
+│ DevOps/Infrastructure:                                                      │
+│  ✓ GitHub repo setup & management                                          │
+│  ✓ Backend deployment to Render                                            │
+│  ✓ Frontend deployment to Vercel                                           │
+│  ✓ Environment variables management                                        │
+│  ✓ NVIDIA Brev setup (optional optimization)                              │
+│                                                                             │
+│ Key Deliverables:                                                          │
+│  - GitHub repo (source of truth)                                           │
+│  - Backend live on Render (HTTPS URL)                                      │
+│  - Frontend live on Vercel (HTTPS URL)                                     │
+│  - Both apps connected & working together                                  │
+│  - DEPLOYMENT.md with live URLs                                            │
+│                                                                             │
+│ Success: All code live, both URLs work, <30sec response time               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     PERSON 2: FRONTEND DEVELOPER                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Role: UI/UX Designer + React Developer                                      │
+│                                                                             │
+│ Builds:                                                                     │
+│  ✓ React/Next.js frontend                                                  │
+│  ✓ Mobile-first design                                                     │
+│  ✓ Symptom input form                                                      │
+│  ✓ Triage result display (RED/YELLOW/GREEN)                               │
+│  ✓ Printable referral slip                                                 │
+│                                                                             │
+│ Deliverables:                                                              │
+│  - pages/index.jsx                     [Home page]                         │
+│  - pages/triage.jsx                    [Main form]                         │
+│  - components/TriageResult.jsx         [Result display]                    │
+│  - components/ReferralSlip.jsx         [Printable output]                  │
+│  - styles/                             [CSS + responsive]                  │
+│                                                                             │
+│ Success: App looks good on phones, buttons work, connects to backend       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PERSON 3: DATA & CONTENT SPECIALIST                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Role: Clinical Data Curator + QA                                            │
+│                                                                             │
+│ Prepares:                                                                   │
+│  ✓ 10 Kenyan health conditions with symptoms/red flags                     │
+│  ✓ Triage rules (what triggers RED/YELLOW/GREEN)                           │
+│  ✓ SHA (Social Health Authority) benefit coverage data                                              │
+│  ✓ 5 realistic test patient scenarios                                      │
+│  ✓ Swahili translations                                                    │
+│                                                                             │
+│ Deliverables:                                                              │
+│  - data/conditions.json                [Diseases database]                 │
+│  - data/triage_rules.json              [Decision logic]                    │
+│  - data/test_cases.json                [5 demo scenarios]                  │
+│  - data/nhif_benefits.json             [Cost information]                  │
+│  - data/swahili_translations.json      [Language]                          │
+│                                                                             │
+│ Success: Data is accurate, test cases work, all conditions covered         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              PERSON 4: CLINICAL/PRODUCT RESEARCH SPECIALIST                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Role: Kenya Healthcare Context Validation + Roadmap Planning                │
+│                                                                             │
+│ Research:                                                                   │
+│  ✓ Interview health workers (if possible)                                  │
+│  ✓ Validate our triage rules match Kenya clinical guidelines               │
+│  ✓ Document current clinic workflow (how triage happens now)               │
+│  ✓ Create user testing script (for post-hackathon validation)              │
+│                                                                             │
+│ Documents to Create:                                                        │
+│  - Clinic Workflow Document             [Kenya context validation]         │
+│  - Validation Checklist                 [Our approach is clinically sound]  │
+│  - User Testing Script                  [Future health worker feedback]     │
+│  - Post-Hackathon Roadmap              [Regulatory + partnership path]     │
+│                                                                             │
+│ Demo Support:                                                               │
+│  - Provide talking points about Kenya problem                              │
+│  - Field judge questions about healthcare context                          │
+│  - Position system for scalability after hackathon                         │
+│                                                                             │
+│ Success: Judges understand this is real Kenya problem, we have roadmap     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                         TEAM COMMUNICATION & SYNC POINTS
+================================================================================
+
+SEPT 25, 2 PM - KICKOFF
+  Who: All 4 people
+  What: Explain architecture, assign tasks, verify dev environments
+  Output: Everyone knows what they're building
+
+SEPT 25 EVENING - START CODING
+  Geofry: Set up FastAPI + Agent 1
+  Person 2: Set up React + intake form
+  Person 3: Create conditions.json + test cases
+  Person 4: GitHub + Render/Vercel setup
+
+SEPT 26 AFTERNOON - INTEGRATION TEST
+  All together: Connect frontend to localhost backend
+  Test one scenario end-to-end
+  Verify Person 3's data is being used correctly
+
+SEPT 26 EVENING - PRE-DEPLOYMENT
+  Person 4 deploys backend to Render
+  Person 4 deploys frontend to Vercel
+  Everyone tests with live URLs
+
+SEPT 27, 7 AM - FINAL CHECKS
+  All hands on deck
+  Test all 5 scenarios with live URLs
+  Quick rehearsal of demo
+  Fix any last-minute bugs
+
+SEPT 27, 9 AM - DEMO TIME
+  Show judges what you built
+  Walk through 3-5 patient scenarios
+  Explain how it helps Kenya's clinics
+  WIN
+
+================================================================================
+                              TECH STACK SUMMARY
+================================================================================
+
+FRONTEND
+  - Framework: Next.js (React)
+  - Language: JavaScript/JSX
+  - Styling: CSS
+  - Deployment: Vercel
+  - Features: Mobile-first, printable
+
+BACKEND
+  - Framework: FastAPI (Python)
+  - Language: Python 3.9+
+  - Deployment: Render
+  - Key Libraries: anthropic, uvicorn, pydantic
+
+AI/ML
+  - LLM: Claude (Anthropic API)
+  - Embeddings: NVIDIA Brev
+  - Models: claude-opus-5.5
+
+DATABASE
+  - Format: JSON files (MVP)
+  - Conditions: conditions.json
+  - Rules: triage_rules.json
+  - Tests: test_cases.json
+
+================================================================================
+                            SUCCESS CRITERIA (SEPT 27)
+================================================================================
+
+TECHNICAL ✓
+  □ Frontend loads without errors
+  □ Backend responds in <30 seconds
+  □ All 5 test scenarios work correctly
+  □ Triage decisions match expected results
+  □ Print function produces clean output
+
+DEPLOYMENT ✓
+  □ Frontend live on Vercel (HTTPS)
+  □ Backend live on Render (HTTPS)
+  □ Both URLs accessible from browser
+  □ API calls work end-to-end
+  □ No downtime during demo
+
+UX ✓
+  □ App is intuitive (judges can use without instructions)
+  □ Color-coding is clear (RED/YELLOW/GREEN)
+  □ Mobile-friendly (works on phone screen)
+  □ Results are understandable (plain language)
+  □ Printable slip looks professional
+
+PRESENTATION ✓
+  □ Demo runs smoothly in 2 minutes
+  □ Team can explain each component
+  □ Judges understand Kenya context
+  □ Business case is clear (why this matters)
+  □ Roadmap is credible (how to scale)
+
+================================================================================
+                              KEY FILES TO MAINTAIN
+================================================================================
+
+In Repository Root
+  - README.md                    (Project overview)
+  - .env.example                 (Template for secrets)
+  - DEPLOYMENT.md                (Live URLs + deployment steps)
+
+Backend (medi-triage-backend/)
+  - main.py                      (FastAPI app)
+  - agents/
+    - symptom_analyzer.py        (Agent 1)
+    - triage_router.py           (Agent 2)
+    - care_pathway.py            (Agent 3)
+  - data/
+    - conditions.json            (Disease database)
+    - triage_rules.json          (Decision rules)
+    - test_cases.json            (5 scenarios)
+  - requirements.txt             (Python dependencies)
+
+Frontend (medi-triage-frontend/)
+  - package.json                 (NPM dependencies)
+  - pages/
+    - index.jsx                  (Home page)
+    - triage.jsx                 (Main form)
+  - components/
+    - TriageResult.jsx           (Results display)
+    - ReferralSlip.jsx           (Printable output)
+  - styles/
+    - globals.css                (Styling)
+  - .env.local                   (Environment variables)
+
+Documentation
+  - TEAM_BRIEF.md                (Non-technical explanation)
+  - TECHNICAL_ARCHITECTURE.md    (How to build)
+  - TEAM_TASK_BREAKDOWN.md       (Step-by-step tasks)
+  - PROJECT_OVERVIEW.md          (This overview)
+
+================================================================================
+                                    TIMELINE
+================================================================================
+
+SEPT 24 EVENING
+  ✓ You receive this briefing
+
+SEPT 25 (DAY 1)
+  9 AM:    Kickoff meeting (all 4 people)
+  10 AM:   Start coding (split into roles)
+  2 PM:    Daily standup
+  8 PM:    Commit progress to GitHub
+
+SEPT 26 (DAY 2)
+  9 AM:    Standup + review code
+  2 PM:    Integration test (frontend + backend)
+  6 PM:    Deployment (Render + Vercel)
+  8 PM:    Test with live URLs
+  
+SEPT 27 (DAY 3 - HACKATHON)
+  7 AM:    Final checks + rehearsal
+  8 AM:    All systems ready
+  9 AM:    Demo presentation (2-3 minutes)
+  9:30 AM: Judges Q&A
+  10 AM:   RESULTS
+
+================================================================================
+                                   MORALE
+================================================================================
+
+You're not building a generic app. You're building something Kenya's clinics
+will actually use. Health workers are overwhelmed. Patients don't know whether
+to go to a hospital or home rest. Your system answers that in 30 seconds.
+
+This is real. This matters. Build it right.
+
+Questions? Reference:
+  - TEAM_BRIEF.md                → Simple explanation
+  - TECHNICAL_ARCHITECTURE.md    → How to build
+  - TEAM_TASK_BREAKDOWN.md       → Your specific tasks
+  - PROJECT_OVERVIEW.md          → Big picture
+
+Let's go. See you Sept 25.
+
+================================================================================

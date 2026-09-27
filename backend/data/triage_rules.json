@@ -1,0 +1,385 @@
+{
+  "schema_version": "1.0.0",
+  "content_owner": "Person 3 (Data & Content Specialist) - clinical logic reviewed by Person 1 for engine compatibility",
+  "status": "SEED - validated against the 5 demo scenarios by the test suite",
+  "evaluation": {
+    "order": "ascending priority; the FIRST rule whose predicates all match wins",
+    "predicate_vocabulary": [
+      "any  - value contains at least one of the given substrings (case-insensitive)",
+      "none - value contains none of the given substrings",
+      "all  - value contains every one of the given substrings",
+      "eq / not_eq - equality against a scalar",
+      "lt / lte / gt / gte - numeric comparison",
+      "exists - the field is present and not empty"
+    ],
+    "default_level": "GREEN",
+    "default_rationale": "No emergency or urgent indicator was found in the reported symptoms."
+  },
+  "clinical_notes": [
+    "RED = emergency, needs hospital now. YELLOW = urgent, needs same-day clinic care.",
+    "GREEN = routine, can be managed at home or at a routine clinic visit.",
+    "Rules are ordered so that no YELLOW can ever be shadowed by a GREEN rule.",
+    "This engine is deliberately deterministic: an LLM extraction failure can make a result more cautious, never less. See backend/triage/engine.py.",
+    "Clinical review by a licensed Kenyan clinician is still PENDING (see PILOT_TODO)."
+  ],
+  "PILOT_TODO": [
+    "Validate severity thresholds against Kenya National Clinical Guidelines for Primary Care",
+    "Add paediatric age-specific thresholds (child under 5 fever cut-offs differ from adults)",
+    "Add maternal danger-sign protocol (bleeding, severe headache, reduced fetal movement)",
+    "Confirm which level of facility performs which test under SHA capitation"
+  ],
+  "rules": [
+    {
+      "rule_id": "r001",
+      "name": "Cardiac emergency - chest pain with breathing difficulty",
+      "priority": 10,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Chest pain together with difficulty breathing may be a heart attack. This cannot be excluded at primary care level.",
+      "predicates": [
+        { "field": "symptoms.primary", "any": ["chest pain", "chest pressure", "chest tightness", "maumivu ya kifua"] },
+        { "field": "symptoms.all", "any": ["breath", "breathing", "shortness of breath", "kupumua", "sweat", "sweating"] }
+      ]
+    },
+    {
+      "rule_id": "r002",
+      "name": "Cardiac emergency - chest pain with cardiac red flags",
+      "priority": 11,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Chest pain with cardiac features (radiation, sweating, fainting, palpitations) is treated as a heart attack until proven otherwise.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["chest pain", "chest pressure", "maumivu ya kifua"] },
+        { "field": "red_flags", "any": ["radiat", "arm", "jaw", "neck", "sweat", "faint", "palpitation", "irregular heartbeat", "at rest"] }
+      ]
+    },
+    {
+      "rule_id": "r003",
+      "name": "Malaria danger sign - fever with neurological or respiratory compromise",
+      "priority": 20,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Fever with confusion, convulsions, inability to drink or laboured breathing suggests severe malaria or another life-threatening infection.",
+      "predicates": [
+        { "field": "features.fever_present", "eq": true },
+        { "field": "red_flags", "any": ["confus", "altered mental", "seizure", "convulsion", "unconscious", "fitting", "cannot drink", "unable to drink", "unable to breastfeed", "rapid breathing", "laboured breathing", "difficulty breathing", "very dark urine", "black urine"] }
+      ]
+    },
+    {
+      "rule_id": "r004",
+      "name": "Severe respiratory distress",
+      "priority": 21,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Severe difficulty breathing, chest indrawing or inability to speak in full sentences is respiratory failure until proven otherwise.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["severe difficulty breathing", "severe shortness of breath", "cannot breathe", "unable to breathe", "gasping", "chest indrawing", "blue lips", "kushindwa kupumua"] }
+      ]
+    },
+    {
+      "rule_id": "r005",
+      "name": "Neurological emergency",
+      "priority": 22,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Loss of consciousness, convulsions or new weakness on one side of the body requires immediate hospital assessment.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["unconscious", "unresponsive", "not waking", "convulsion", "seizure", "fitting", "slurred speech", "weakness on one side", "paralysis", "stroke"] }
+      ]
+    },
+    {
+      "rule_id": "r006",
+      "name": "Mental health emergency - suicidal ideation",
+      "priority": 23,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "mental_health_crisis",
+      "sha_fund": "SHIF",
+      "rationale": "Thoughts of self-harm or suicide require immediate mental health intervention. Do not leave the patient alone.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["suicid", "kill myself", "harming myself", "harm myself", "end my life", "don't see the point", "do not see the point", "no reason to live", "better off dead", "self-harm", "kujiua"] }
+      ]
+    },
+    {
+      "rule_id": "r007",
+      "name": "Obstetric emergency - bleeding in pregnancy",
+      "priority": 24,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Vaginal bleeding in pregnancy is an obstetric emergency - possible miscarriage, ectopic pregnancy or placenta praevia.",
+      "predicates": [
+        { "field": "patient.pregnant", "eq": true },
+        { "field": "symptoms.all", "any": ["bleeding", "blood", "haemorrhage", "hemorrhage", "kutokwa damu"] }
+      ]
+    },
+    {
+      "rule_id": "r008",
+      "name": "Diabetic emergency",
+      "priority": 25,
+      "triage_level": "RED",
+      "urgency": "EMERGENCY",
+      "recommended_pathway": "hospital",
+      "sha_fund": "ECCIF",
+      "rationale": "Fruity-smelling breath, deep rapid breathing, drowsiness or a foot ulcer in a person with diabetes suggests ketoacidosis or severe complication.",
+      "predicates": [
+        { "field": "patient.chronic", "any": ["diabetes", "diabetic", "kisukari", "sugar"] },
+        { "field": "symptoms.all", "any": ["fruity", "deep rapid breathing", "drowsy", "drowsiness", "confusion", "unconscious", "vomiting", "foot ulcer", "black toe", "non-healing wound"] }
+      ]
+    },
+
+    {
+      "rule_id": "r101",
+      "name": "High fever with respiratory symptoms",
+      "priority": 101,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "High fever together with a cough or breathing symptoms suggests pneumonia, severe malaria or tuberculosis. Needs clinical examination today.",
+      "predicates": [
+        { "field": "features.fever_high", "eq": true },
+        { "field": "symptoms.all", "any": ["cough", "kikohozi", "breathing", "kupumua", "sputum", "chest pain on breathing"] }
+      ]
+    },
+    {
+      "rule_id": "r102",
+      "name": "Febrile illness - malaria or typhoid must be excluded",
+      "priority": 102,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "Fever with headache, chills, body aches or nausea is a febrile illness. In Kenya malaria and typhoid must be excluded with a test - this needs a same-day clinic visit.",
+      "predicates": [
+        { "field": "features.fever_present", "eq": true },
+        { "field": "symptoms.all", "any": ["headache", "chill", "rigor", "body ache", "muscle ache", "joint pain", "nausea", "vomit", "sweat", "maumivu ya kichwa", "baridi"] }
+      ]
+    },
+    {
+      "rule_id": "r103",
+      "name": "Severe febrile illness without focal symptoms",
+      "priority": 103,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "A high fever on its own is an urgent presentation in a malaria-endemic setting and needs same-day assessment.",
+      "predicates": [
+        { "field": "features.fever_high", "eq": true }
+      ]
+    },
+    {
+      "rule_id": "r104",
+      "name": "Fever with focal urinary symptoms",
+      "priority": 104,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "Fever with burning or frequent urination, or fever with back pain, suggests kidney involvement (pyelonephritis) rather than simple cystitis.",
+      "predicates": [
+        { "field": "features.fever_present", "eq": true },
+        { "field": "symptoms.all", "any": ["burning urine", "burning when urinating", "painful urination", "dysuria", "frequent urination", "passing urine", "mkojo", "back pain", "flank pain", "kidney"] }
+      ]
+    },
+    {
+      "rule_id": "r105",
+      "name": "Dehydration from vomiting or diarrhoea",
+      "priority": 105,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "Diarrhoea or vomiting with signs of dehydration or blood in the stool requires rehydration and assessment today.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["diarrhoea", "diarrhea", "kuhara", "vomit", "loose stool", "watery stool"] },
+        { "field": "symptoms.all", "any": ["dehydrat", "sunken eyes", "dry mouth", "no urine", "not passing urine", "dizzy", "weak", "blood in stool", "bloody stool", "cannot keep fluids", "persistent vomit"] }
+      ]
+    },
+    {
+      "rule_id": "r106",
+      "name": "Mental health crisis - functional collapse without suicidal ideation",
+      "priority": 106,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "mental_health",
+      "sha_fund": "PHF",
+      "rationale": "Severe depression or anxiety that prevents the patient from functioning at work, school or home needs same-day mental health assessment. Mental health care is covered under SHA without a referral.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["depress", "huzuni", "anxiety", "wasiwasi", "panic", "cannot sleep", "cannot eat", "hopeless", "lost interest", "no pleasure", "withdraw"] },
+        { "field": "severity", "any": ["severe", "moderate"] }
+      ]
+    },
+    {
+      "rule_id": "r107",
+      "name": "Chest pain without cardiac features",
+      "priority": 107,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "Chest pain that does not match an emergency pattern still needs a same-day ECG-capable assessment. It is not managed at home.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["chest pain", "chest discomfort", "maumivu ya kifua"] }
+      ]
+    },
+    {
+      "rule_id": "r108",
+      "name": "Suspected tuberculosis - cough lasting over two weeks",
+      "priority": 108,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "A cough lasting more than two weeks requires tuberculosis screening, with or without fever.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["cough"] },
+        { "field": "features.duration_two_weeks", "eq": true }
+      ]
+    },
+    {
+      "rule_id": "r109",
+      "name": "Hypertensive urgency",
+      "priority": 109,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "A blood pressure reading at or above 180/110 mmHg, or severe headache with blurred vision in a person with hypertension, needs same-day assessment to prevent stroke.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["180/", "190/", "200/", "210/", "very high blood pressure", "severe headache", "blurred vision", "vision changes"] }
+      ]
+    },
+    {
+      "rule_id": "r110",
+      "name": "Spreading skin infection",
+      "priority": 110,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "Red streaks spreading up a limb, fever with a skin infection, or rapidly spreading redness suggests cellulitis requiring systemic antibiotics.",
+      "predicates": [
+        { "field": "symptoms.labels", "any": ["skin_problem"] },
+        { "field": "symptoms.labels", "any": ["spreading", "red streak", "pus", "swollen", "abscess", "boil"] }
+      ]
+    },
+    {
+      "rule_id": "r111",
+      "name": "Significant injury needing clinical care",
+      "priority": 111,
+      "triage_level": "YELLOW",
+      "urgency": "URGENT",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "A deep wound, bleeding that is hard to stop, a suspected fracture or a wound from a dirty object needs wound care, suturing or tetanus vaccination today.",
+      "predicates": [
+        { "field": "symptoms.labels", "any": ["injury"] },
+        { "field": "symptoms.all", "any": ["deep", "heavy bleeding", "wont stop", "will not stop", "stitch", "rusty", "dirty", "cannot move", "deform"] }
+      ]
+    },
+
+    {
+      "rule_id": "r201",
+      "name": "Uncomplicated upper respiratory infection",
+      "priority": 201,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "home_or_clinic",
+      "sha_fund": "PHF",
+      "rationale": "A runny nose, sore throat or mild cough with no high fever or breathing difficulty is usually self-limiting and can be managed at home.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["runny nose", "blocked nose", "sneez", "sore throat", "mild cough", "cough", "cold", "kikohozi", "flu", "mafua"] }
+      ]
+    },
+    {
+      "rule_id": "r202",
+      "name": "Mild fever without danger signs",
+      "priority": 202,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "home_or_clinic",
+      "sha_fund": "PHF",
+      "rationale": "Mild fever in a patient who is drinking, alert and playing is usually a self-limiting viral illness. Review if it persists beyond three days.",
+      "predicates": [
+        { "field": "features.fever_present", "eq": true },
+        { "field": "features.has_red_flag", "eq": false }
+      ]
+    },
+    {
+      "rule_id": "r203",
+      "name": "Mild diarrhoea without dehydration",
+      "priority": 203,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "home_or_clinic",
+      "sha_fund": "PHF",
+      "rationale": "Simple diarrhoea without dehydration signs is managed at home with oral rehydration solution and fluids.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["diarrhoea", "diarrhea", "kuhara", "loose stool", "watery stool"] }
+      ]
+    },
+    {
+      "rule_id": "r204",
+      "name": "Routine chronic disease follow-up",
+      "priority": 204,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "A scheduled review of controlled hypertension or diabetes with no new symptoms is routine. Continue treatment and keep the appointment.",
+      "predicates": [
+        { "field": "patient.chronic", "any": ["hypertension", "blood pressure", "diabetes", "diabetic", "kisukari", "asthma"] }
+      ]
+    },
+    {
+      "rule_id": "r205",
+      "name": "Localised skin infection",
+      "priority": 205,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "home_or_clinic",
+      "sha_fund": "PHF",
+      "rationale": "A small, localised, non-spreading skin infection can be managed with wound care and topical treatment.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["skin", "itch", "rash", "ngonzi", "small wound", "pimple", "ringworm", "fungal"] }
+      ]
+    },
+    {
+      "rule_id": "r206",
+      "name": "Minor injury",
+      "priority": 206,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "home_or_clinic",
+      "sha_fund": "PHF",
+      "rationale": "A minor cut, bruise or graze can be cleaned and dressed at home. Attend a clinic if it shows signs of infection.",
+      "predicates": [
+        { "field": "symptoms.all", "any": ["bruise", "graze", "scratch", "minor cut", "small cut", "sprain", "minor injury", "swelling"] }
+      ]
+    },
+    {
+      "rule_id": "r999",
+      "name": "Default routine care",
+      "priority": 999,
+      "triage_level": "GREEN",
+      "urgency": "ROUTINE",
+      "recommended_pathway": "clinic",
+      "sha_fund": "PHF",
+      "rationale": "No emergency or urgent indicator was identified from the reported symptoms. A routine clinic visit is appropriate if symptoms continue.",
+      "predicates": []
+    }
+  ]
+}

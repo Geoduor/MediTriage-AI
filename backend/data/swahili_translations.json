@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0.0",
+  "content_owner": "Person 3 (Data & Content Specialist)",
+  "status": "SEED - corrected against the draft translations in TEAM_TASK_BREAKDOWN.md, which contained several errors",
+  "corrections_log": [
+    "fever: 'Moto' (heat) -> 'homa' (fever). 'Moto' is the wrong word for a fever.",
+    "diarrhoea: 'Kuvimba' (swelling) -> 'kuhara'. The draft translation described swelling, not diarrhoea.",
+    "home_care: 'Kustay nyumbani' (English/Swahili mashup) -> 'jipatie mapumziko nyumbani'.",
+    "cough: 'Kikohozi' retained (correct). 'chest pain': standardised to 'maumivu ya kifua'.",
+    "All entries still require review by a native Swahili-speaking clinician before pilot use."
+  ],
+  "review_status": "PENDING native-speaker clinical review",
+  "symptoms": {
+    "fever": "homa",
+    "high_fever": "homa kali",
+    "chills": "baridi",
+    "headache": "maumivu ya kichwa",
+    "severe_headache": "maumivu makali ya kichwa",
+    "cough": "kikohozi",
+    "shortness_of_breath": "kushindwa kupumua",
+    "difficulty_breathing": "ugumu wa kupumua",
+    "chest_pain": "maumivu ya kifua",
+    "diarrhoea": "kuhara",
+    "vomiting": "kutapika",
+    "nausea": "kichefuchefu",
+    "abdominal_pain": "maumivu ya tumboni",
+    "fatigue": "uchovu",
+    "body_aches": "maumivu ya mwili",
+    "joint_pain": "maumivu ya viungo",
+    "rash": "vipele",
+    "skin_infection": "maambukizi ya ngozi",
+    "wound": "jeraha",
+    "bleeding": "kutokwa na damu",
+    "dizziness": "kizunguzungu",
+    "blurred_vision": "kuona vibaya",
+    "confusion": "kuchanganyikiwa",
+    "convulsions": "kifafa",
+    "unconscious": "kupoteza fahamu",
+    "painful_urination": "maumivu wakati wa kukojoa",
+    "frequent_urination": "kukojoa mara kwa mara",
+    "excessive_thirst": "kiu kali",
+    "weight_loss": "kupungua uzito",
+    "night_sweats": "kutoka jasho usiku",
+    "sadness": "huzuni",
+    "anxiety": "wasiwasi",
+    "loss_of_interest": "kupoteza hamu",
+    "cannot_sleep": "kushindwa kulala",
+    "suicidal_thoughts": "mawazo ya kujiua",
+    "swelling": "kuvimba",
+    "back_pain": "maumivu ya mgongo"
+  },
+  "triage_levels": {
+    "RED": {
+      "label_sw": "HATARI - Nenda hospitalini sasa",
+      "label_en": "EMERGENCY - Go to hospital now"
+    },
+    "YELLOW": {
+      "label_sw": "HARAKA - Nenda kliniki leo",
+      "label_en": "URGENT - Go to the clinic today"
+    },
+    "GREEN": {
+      "label_sw": "KAWAIDA - Unaweza kujitunza nyumbani",
+      "label_en": "ROUTINE - You can manage this at home"
+    }
+  },
+  "instructions": {
+    "go_to_hospital_now": "Nenda hospitalini mara moja.",
+    "call_ambulance": "Piga simu ya dharura.",
+    "do_not_wait": "Usisubiri. Hali hii ni ya dharura.",
+    "go_to_clinic_today": "Nenda kliniki leo.",
+    "come_to_clinic_today": "Kuja kliniki leo.",
+    "home_care": "Jipatie mapumziko nyumbani na ufuatilie dalili zako.",
+    "drink_water": "Kunywa maji mengi.",
+    "rest": "Pumzika.",
+    "take_paracetamol": "Kunywa paracetamol kwa homa na maumivu.",
+    "take_medicine_as_prescribed": "Kunywa dawa zako kila siku kama ulivyoelekezwa.",
+    "keep_feet_clean": "Safisha na uangalie miguu yako kila siku.",
+    "come_back_if_worse": "Rudi kliniki ikiwa dalili zinaendelea au zinazidi.",
+    "do_not_leave_alone": "Usimbakishe mgonjwa peke yake.",
+    "talk_to_someone": "Zungumza na mtu unayemwamini.",
+    "bring_card": "Leta kadi yako ya SHA au kitambulisho.",
+    "tell_them_you_have_sha": "Waambie una bima ya SHA."
+  },
+  "cost": {
+    "free_phf": "Huduma hii ni bure kwa kadi ya SHA kwenye kituo cha afya.",
+    "covered_shif": "Gharama inalipwa na SHA (SHIF).",
+    "covered_eccif": "Dharura hii inalipwa kikamilifu na SHA (ECCIF).",
+    "transport_only": "Utalipa usafiri pekee.",
+    "sha_contribution": "Mchango wa SHA ni asilimia 2.75 ya mapato, kiwango cha chini cha KES 300 kwa mwezi."
+  },
+  "danger_signs": {
+    "confusion": "Kuchanganyikiwa au kusinzia",
+    "difficulty_breathing": "Ugumu wa kupumua",
+    "convulsions": "Kifafa",
+    "cannot_drink": "Kushindwa kunywa maji",
+    "chest_pain": "Maumivu ya kifua",
+    "severe_bleeding": "Kutokwa na damu nyingi",
+    "no_urine": "Kutokutoa mkojo",
+    "worsening_pain": "Maumivu yanazidi",
+    "fainting": "Kuzirai",
+    "suicidal_thoughts": "Mawazo ya kujiua"
+  },
+  "reassurance": {
+    "not_a_diagnosis": "Huu ni mwongozo tu, si utambuzi wa ugonjwa. Daktari atakuchunguza.",
+    "not_a_replacement": "Mfumo huu unasaidia tu. Hauwachukui nafasi ya muuguzi au daktari."
+  }
+}

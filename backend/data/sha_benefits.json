@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "content_owner": "Person 3 (Data & Content Specialist)",
+  "status": "SEED - reflects SHA (Social Health Authority) as of 2026; NHIF no longer exists",
+  "important": [
+    "NHIF was replaced by SHA through an Act of Parliament in November 2023; SHA began operations on 1 October 2024.",
+    "All cost statements shown to patients must reference SHA and one of its three funds.",
+    "Do NOT reintroduce NHIF premium bands (KES 150-1700) anywhere in this system."
+  ],
+  "sha_overview": {
+    "contributions": "2.75% of gross household monthly income, minimum KES 300 per month",
+    "enrolment": "Mandatory for all Kenyan residents aged 18 and above",
+    "referral_policy": "Many specialist and mental health services are directly accessible without a referral"
+  },
+  "funds": [
+    {
+      "code": "PHF",
+      "name": "Primary Healthcare Fund",
+      "purpose": "Preventive and routine outpatient care at dispensary and health centre level",
+      "covers": [
+        "Outpatient consultation",
+        "Basic laboratory tests including malaria rapid diagnostic test",
+        "Common antibiotics and essential medicines",
+        "Routine hypertension and diabetes monitoring",
+        "Primary mental health care and counselling",
+        "Wound care, suturing and tetanus vaccination"
+      ],
+      "patient_cost": "KES 0 at dispensary and health centre level; transport is the patient's only cost",
+      "used_by_triage_levels": ["YELLOW", "GREEN"]
+    },
+    {
+      "code": "SHIF",
+      "name": "Social Health Insurance Fund",
+      "purpose": "Core contributory scheme covering inpatient and specialist care",
+      "covers": [
+        "Inpatient admission",
+        "Specialist consultation",
+        "Surgery",
+        "Maternity care",
+        "Chronic disease management",
+        "Mental health and rehabilitation services"
+      ],
+      "patient_cost": "Covered by the 2.75% contribution; a small registration fee and some medicine co-pays may apply",
+      "used_by_triage_levels": ["YELLOW", "RED"]
+    },
+    {
+      "code": "ECCIF",
+      "name": "Emergency, Chronic and Critical Illness Fund",
+      "purpose": "Catastrophic and emergency care",
+      "covers": [
+        "Emergency department care",
+        "Intensive care admission",
+        "Major surgery and trauma care",
+        "Cancer treatment, dialysis and organ transplant"
+      ],
+      "patient_cost": "Fully covered - minimal to no cost to the patient",
+      "used_by_triage_levels": ["RED"]
+    }
+  ],
+  "facility_levels": [
+    {
+      "level": "dispensary",
+      "level_rank": 1,
+      "services": ["Basic consultation", "Malaria rapid test", "Essential medicines", "First aid", "Immunisation"],
+      "sha_fund": "PHF",
+      "patient_cost_kes": "0"
+    },
+    {
+      "level": "health_centre",
+      "level_rank": 2,
+      "services": ["Consultation", "Laboratory tests", "Injections", "Maternity care", "Minor procedures", "Counselling"],
+      "sha_fund": "PHF",
+      "patient_cost_kes": "0"
+    },
+    {
+      "level": "sub_county_hospital",
+      "level_rank": 3,
+      "services": ["Inpatient admission", "X-ray and imaging", "Surgery", "Specialist outpatient clinic", "Emergency care"],
+      "sha_fund": "SHIF",
+      "patient_cost_kes": "covered by SHA contribution; small co-pays may apply"
+    },
+    {
+      "level": "referral_hospital",
+      "level_rank": 4,
+      "services": ["Intensive care", "Complex surgery", "Cardiac care", "Oncology", "Dialysis"],
+      "sha_fund": "ECCIF",
+      "patient_cost_kes": "fully covered under ECCIF"
+    }
+  ],
+  "context_notes": [
+    "The SHA transition (Oct 2024 - Apr 2025) was disrupted by system bugs and member-data migration problems, so patients may still be uncertain about their coverage. The care pathway output must state the fund in plain language.",
+    "A Ministry of Health audit in January 2026 found roughly KES 11 billion lost to fraudulent claims between October 2024 and April 2025, mostly from private hospitals. Accurate triage that right-sizes the level of care therefore has direct financial value to SHA.",
+    "Although SHA is mandatory, in practice coverage gaps still occur. If a patient's status is unknown, the system should state what the fund covers without asserting that the individual is enrolled."
+  ],
+  "sources": [
+    "Social Health Authority (SHA) - https://sha.go.ke/",
+    "Social Health Insurance Act (2023) and SHA transition documentation",
+    "Ministry of Health audit findings, January 2026"
+  ]
+}

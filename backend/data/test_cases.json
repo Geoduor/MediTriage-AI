@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0.0",
+  "content_owner": "Person 3 (Data & Content Specialist)",
+  "status": "SEED - these 5 scenarios are the demo contract; backend/tests/test_scenarios.py enforces them",
+  "notes": [
+    "expected_triage_level is the acceptance criterion for the hackathon demo.",
+    "If a code change makes any scenario return a different level, the test suite fails. That is deliberate: it stops a prompt or rule edit from silently breaking the demo.",
+    "Scenario 4 was corrected: the planning docs labelled depression with suicidal ideation as YELLOW in one place and RED in another. Suicidal ideation is a RED mental health emergency and is treated as RED here."
+  ],
+  "test_cases": [
+    {
+      "scenario_id": 1,
+      "patient_name": "Malaria suspicion",
+      "patient_age": 25,
+      "sex": "female",
+      "location": "Kisumu",
+      "symptoms": "I have been having high fever for 2 days, with chills, severe headache, and my whole body aches. I also feel nauseous.",
+      "patient_context": {
+        "hiv_status": "negative",
+        "pregnant": false,
+        "chronic_conditions": []
+      },
+      "language": "en",
+      "expected_triage_level": "YELLOW",
+      "expected_pathway": "clinic",
+      "expected_sha_fund": "PHF",
+      "expected_rationale": "Febrile illness with headache, chills and body aches. Malaria and typhoid must be excluded by test, which requires a same-day clinic visit.",
+      "expected_actions": [
+        "Go to the clinic today for a malaria rapid diagnostic test",
+        "Free under the SHA Primary Healthcare Fund",
+        "Bring SHA card or ID"
+      ]
+    },
+    {
+      "scenario_id": 2,
+      "patient_name": "Routine hypertension review",
+      "patient_age": 55,
+      "sex": "male",
+      "location": "Nairobi",
+      "symptoms": "My blood pressure monitor at home shows 135/85. I am on blood pressure medication but want to check if I am doing well.",
+      "patient_context": {
+        "hiv_status": "negative",
+        "pregnant": false,
+        "chronic_conditions": ["hypertension"]
+      },
+      "language": "en",
+      "expected_triage_level": "GREEN",
+      "expected_pathway": "clinic",
+      "expected_sha_fund": "PHF",
+      "expected_rationale": "Blood pressure is mildly elevated and controlled on treatment. This is a routine review with no red flags.",
+      "expected_actions": [
+        "Routine clinic visit, no emergency",
+        "Continue medication as prescribed",
+        "Free under the SHA Primary Healthcare Fund"
+      ]
+    },
+    {
+      "scenario_id": 3,
+      "patient_name": "Severe chest pain - cardiac emergency",
+      "patient_age": 52,
+      "sex": "male",
+      "location": "Nairobi",
+      "symptoms": "I have severe chest pain, it feels like pressure, and I am having trouble breathing. I am sweating and my heart is racing.",
+      "patient_context": {
+        "hiv_status": "negative",
+        "pregnant": false,
+        "chronic_conditions": ["hypertension", "diabetes"]
+      },
+      "language": "en",
+      "expected_triage_level": "RED",
+      "expected_pathway": "hospital",
+      "expected_sha_fund": "ECCIF",
+      "expected_rationale": "Chest pain with pressure, difficulty breathing and sweating is a possible heart attack. This cannot be excluded at primary care level.",
+      "expected_actions": [
+        "Go to hospital immediately",
+        "Do not drive yourself",
+        "Chew 325 mg aspirin if available and not allergic",
+        "Covered by the SHA ECCIF fund"
+      ]
+    },
+    {
+      "scenario_id": 4,
+      "patient_name": "Depression with suicidal ideation - mental health emergency",
+      "patient_age": 28,
+      "sex": "female",
+      "location": "Nairobi",
+      "symptoms": "I have been sad for weeks, I have lost interest in everything, I cannot sleep, and I keep thinking about harming myself. I do not see the point anymore.",
+      "patient_context": {
+        "hiv_status": "negative",
+        "pregnant": false,
+        "chronic_conditions": []
+      },
+      "language": "en",
+      "expected_triage_level": "RED",
+      "expected_pathway": "mental_health_crisis",
+      "expected_sha_fund": "SHIF",
+      "expected_rationale": "Depression with active suicidal ideation is a mental health emergency requiring immediate intervention. Do not leave the patient alone.",
+      "expected_actions": [
+        "Contact a mental health professional immediately",
+        "Do not leave the patient alone",
+        "Remove means of self-harm where possible",
+        "Mental health services are covered under SHA without referral"
+      ]
+    },
+    {
+      "scenario_id": 5,
+      "patient_name": "Child with common cold - routine",
+      "patient_age": 8,
+      "sex": "male",
+      "location": "Nakuru",
+      "symptoms": "My child has a runny nose, mild cough, and a little bit of fever at 37.5 degrees. He is still playing but a bit tired.",
+      "patient_context": {
+        "hiv_status": "negative",
+        "pregnant": false,
+        "chronic_conditions": []
+      },
+      "language": "en",
+      "expected_triage_level": "GREEN",
+      "expected_pathway": "home_or_clinic",
+      "expected_sha_fund": "PHF",
+      "expected_rationale": "A runny nose, mild cough and low-grade fever in a child who is still playing and drinking is a self-limiting viral illness.",
+      "expected_actions": [
+        "Manage at home with rest and fluids",
+        "Watch for danger signs such as difficulty breathing or inability to drink",
+        "Attend a clinic if symptoms worsen or last more than 5 days"
+      ]
+    }
+  ],
+  "additional_regression_cases": [
+    {
+      "case_id": "sw-01",
+      "patient_age": 30,
+      "symptoms": "Nina homa kali, maumivu ya kichwa na maumivu ya mwili kwa siku tatu.",
+      "patient_context": { "pregnant": false, "chronic_conditions": [] },
+      "language": "sw",
+      "expected_triage_level": "YELLOW",
+      "why": "Swahili input must produce the same triage level as the equivalent English input."
+    },
+    {
+      "case_id": "preg-01",
+      "patient_age": 26,
+      "symptoms": "I am 7 months pregnant and I have started bleeding.",
+      "patient_context": { "pregnant": true, "chronic_conditions": [] },
+      "language": "en",
+      "expected_triage_level": "RED",
+      "why": "Obstetric emergency - bleeding in pregnancy."
+    },
+    {
+      "case_id": "tb-01",
+      "patient_age": 34,
+      "symptoms": "I have had a cough for three weeks and I sweat at night.",
+      "patient_context": { "pregnant": false, "chronic_conditions": [] },
+      "language": "en",
+      "expected_triage_level": "YELLOW",
+      "why": "Cough lasting more than two weeks requires tuberculosis screening."
+    },
+    {
+      "case_id": "dka-01",
+      "patient_age": 45,
+      "symptoms": "My breath smells fruity and I have been vomiting all day.",
+      "patient_context": { "pregnant": false, "chronic_conditions": ["diabetes"] },
+      "language": "en",
+      "expected_triage_level": "RED",
+      "why": "Diabetic ketoacidosis in a known diabetic."
+    },
+    {
+      "case_id": "uti-01",
+      "patient_age": 24,
+      "symptoms": "It burns when I pass urine and I go very often.",
+      "patient_context": { "pregnant": false, "chronic_conditions": [] },
+      "language": "en",
+      "expected_triage_level": "GREEN",
+      "why": "Uncomplicated UTI is routine - treated at the clinic, not an emergency."
+    }
+  ]
+}
