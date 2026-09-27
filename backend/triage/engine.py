@@ -87,9 +87,6 @@ class RuleMatch:
 # Rules address the *canonical* profile, not the extractor's internal layout.
 # Keeping the translation here means Person 3 can write natural paths such as
 # `symptoms.all` without knowing how the extractor stores things.
-# Rules address the *canonical* profile, not the extractor's internal layout.
-# Keeping the translation here means Person 3 can write natural paths such as
-# `symptoms.all` without knowing how the extractor stores things.
 #
 # Each alias maps to a tuple of PATHS, and each path is itself a tuple of keys.
 # A field with one path resolves to that value; a field with several paths

@@ -135,7 +135,7 @@ def analyze_symptoms(
         **parsed,
         "source_text": raw_text,
         "patient_context": patient_context or {},
-        "extraction_method": "claude",
+        "extraction_method": f"llm:{status['provider']}",
         "extraction_confidence": 0.85,
     }
     profile = canonicalise_profile(merged_input)

@@ -30,7 +30,10 @@ async function post(path, body) {
     let detail = `Request failed (${response.status})`;
     try {
       const errBody = await response.json();
-      detail = errBody?.detail || detail;
+      // The backend's custom handlers return `message` (e.g. validation
+      // errors); FastAPI's default error shape uses `detail`. Reading only
+      // `detail` hid every friendly message behind a generic status line.
+      detail = errBody?.message || errBody?.detail || detail;
     } catch (_) {
       // response had no JSON body — keep default message
     }

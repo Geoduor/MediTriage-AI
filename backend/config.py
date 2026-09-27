@@ -153,9 +153,14 @@ class Settings:
         """True when an LLM call will actually be attempted."""
         if self.llm_mode == "off":
             return False
+        if self.provider == "none":
+            # `none` means "no LLM calls, ever" - LLM_MODE=on cannot override
+            # it, otherwise every request attempts a call that is guaranteed
+            # to raise, and the whole pipeline degrades to the fail-safe path.
+            return False
         if self.llm_mode == "on":
             return True
-        return self.provider != "none" and self._provider_key_present()
+        return self._provider_key_present()
 
     def describe(self) -> dict:
         """Non-secret summary, safe to expose on /health."""
@@ -176,6 +181,8 @@ class Settings:
         if self.llm_mode == "off":
             return "LLM_MODE=off - deterministic rule engine only"
         if self.provider == "none":
+            if self.llm_provider == "none":
+                return "LLM_PROVIDER=none - deterministic offline mode"
             return f"LLM_PROVIDER={self.llm_provider!r} is not a supported provider - deterministic offline mode"
         if not self._provider_key_present():
             key_name = {

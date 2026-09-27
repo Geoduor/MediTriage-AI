@@ -232,6 +232,12 @@ Use no markdown and no bullet points."""
     return call_llm(SYSTEM_PROMPT, prompt, max_tokens=250, temperature=0.2)
 
 
+def _split_sentences(text: str) -> list[str]:
+    """Split a prose instruction into individual action sentences."""
+    parts = re.split(r"(?<=[.!?])\s+", str(text).strip())
+    return [part.strip() for part in parts if part.strip()]
+
+
 def generate_care_pathway(
     triage_level: str,
     symptom_profile: dict[str, Any],
@@ -274,9 +280,15 @@ def generate_care_pathway(
     if personalised:
         patient_instruction = personalised
         instruction_source = "llm"
+        # The LLM returns prose, but the API contract exposes `actions` as a
+        # list of strings. Until this line referenced an undefined
+        # `language_instructions`, every successful personalisation raised
+        # NameError and the whole pathway degraded to the fail-safe block.
+        language_instructions = _split_sentences(personalised) or instructions[language]
     else:
         patient_instruction = " ".join(instructions[language])
         instruction_source = "template"
+        language_instructions = instructions[language]
 
     return {
         "triage_level": triage_level,
@@ -284,7 +296,7 @@ def generate_care_pathway(
         "headline": level_labels.get(f"label_{language}") or result.get("label_en", ""),
         "patient_instruction": patient_instruction,
         "instruction_source": instruction_source,
-        "actions": language_instructions if personalised else instructions[language],
+        "actions": language_instructions,
         "actions_all_languages": instructions,
         "facility": {
             "level": facility.get("level"),

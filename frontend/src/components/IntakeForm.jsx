@@ -193,7 +193,9 @@ export default function IntakeForm({ onSubmit, loading }) {
       patient_age: Number(age),
       patient_context: {
         pregnant: !!context.pregnant,
-        hiv_status: context.hiv_positive ? "positive" : "negative",
+        // Unchecked means "unknown", not "negative" - asserting a negative
+        // HIV status the patient never gave would be a false clinical claim.
+        hiv_status: context.hiv_positive ? "positive" : null,
         chronic_conditions: context.chronic_conditions || [],
       },
     });
